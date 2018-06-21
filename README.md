@@ -1,2 +1,2 @@
-# EVFlowNet
-Code for the paper "EV-FlowNet: Self-Supervised Optical Flow for Event-based Cameras"
+# EV-FlowNet: Self-Supervised Optical Flow Estimation for Event-based Cameras
+Code for the paper "EV-FlowNet: Self-Supervised Optical Flow Estimation for Event-based Cameras"
