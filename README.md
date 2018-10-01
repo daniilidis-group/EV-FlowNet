@@ -38,6 +38,14 @@ The default option is for the data to be downloaded into [mvsec_data](mvsec_data
 ### Pre-trained Model
 A pre-trained model can be downloaded [__**here**__](https://drive.google.com/drive/folders/1tHu1_ajMi1xdZdyDvDe6z6gOyX5PXDeQ?usp=sharing). The default option is for the model folder (ev-flownet) to be placed in [data/log/saver](data/log/saver).
 
+## Updates to the architecture
+This code has undergone a few improvements since publication in RSS. Most notably, they are:
+* Random 2D rotations are applied as data augmentation at training time.
+* Batch norm is used at training.
+* The original model had 2 output channels before the predict_flow layer, which caused it to be quite sensitive and difficult to train. We have now increased this to 32 output channels to resolve these issues.
+
+These improvements have greatly improved the robustness of the models, and they should now work reasonably in most environments. This decreases the AEE error for the dt=1 frames, but slightly increases them for the dt=4 frames. We will update the numbers in our arxiv submission with the new numbers shortly.
+
 ## Testing
 The model can be tested using [test.py](src/test.py). The basic syntax is:  
 ```python test.py --training_instance ev-flownet --test_sequence outdoor_day1```  
