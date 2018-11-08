@@ -20,7 +20,7 @@ for bag_iter in `seq 1 $num_indoor_flying_bags`;
 do
     echo Extracting bag$bag_iter
     mkdir ${output_folder}/indoor_flying$bag_iter
-    python extract_to_files.py --bag $flying_bag_dir${bagnames[$bag_iter]}.bag --prefix indoor_flying$bag_iter --start_time ${starttimes[$bag_iter]} --max_augmentation $max_aug --n_skip 1 --output_folder $output_folder
+    python extract_rosbag_to_tf.py --bag $flying_bag_dir${bagnames[$bag_iter]}.bag --prefix indoor_flying$bag_iter --start_time ${starttimes[$bag_iter]} --max_augmentation $max_aug --n_skip 1 --output_folder $output_folder
 done
 
 outdoor_day_bag_dir=mvsec_bags/outdoor_day/
@@ -36,7 +36,7 @@ for bag_iter in `seq 1 $num_outdoor_day_bags`;
 do
     echo Extracting driving day bag$bag_iter
     mkdir ${output_folder}/outdoor_day$bag_iter
-    python extract_to_files.py --bag $outdoor_day_bag_dir${outdoor_day_bagnames[$bag_iter]}.bag --prefix outdoor_day$bag_iter --start_time ${outdoor_day_starttimes[$bag_iter]} --max_augmentation ${max_aug} --n_skip 1 --output_folder $output_folder
+    python extract_rosbag_to_tf.py --bag $outdoor_day_bag_dir${outdoor_day_bagnames[$bag_iter]}.bag --prefix outdoor_day$bag_iter --start_time ${outdoor_day_starttimes[$bag_iter]} --max_augmentation ${max_aug} --n_skip 1 --output_folder $output_folder
 done
 
 outdoor_night_bag_dir=mvsec_bags/outdoor_night/
@@ -54,5 +54,5 @@ for bag_iter in `seq 1 $num_outdoor_night_bags`;
 do
     echo Extracting driving night bag$bag_iter
     mkdir ${output_folder}/outdoor_night$bag_iter
-    python extract_to_files.py --bag $outdoor_night_bag_dir${outdoor_night_bagnames[$bag_iter]}.bag --prefix outdoor_night$bag_iter --start_time ${outdoor_night_starttimes[$bag_iter]} --max_augmentation ${max_aug} --n_skip 1 --output_folder $output_folder
+    python extract_rosbag_to_tf.py --bag $outdoor_night_bag_dir${outdoor_night_bagnames[$bag_iter]}.bag --prefix outdoor_night$bag_iter --start_time ${outdoor_night_starttimes[$bag_iter]} --max_augmentation ${max_aug} --n_skip 1 --output_folder $output_folder
 done
