@@ -64,4 +64,4 @@ More parameters are described by running:
 To modify the training data (it is only ```outdoor_day2``` by default), you can modify [train_bags.txt](data/train_bags.txt), with a separate sequence per line.
 
 ## Authors
-[Alex Zihao Zhu](https://fling.seas.upenn.edu/~alexzhu/dynamic/), [Liangzhe Yuan](https://yuanliangzhe.github.io/researches/), Kenneth Chaney and [Kostas Daniilidis](https://www.cis.upenn.edu/~kostas/).
+[Alex Zihao Zhu](https://fling.seas.upenn.edu/~alexzhu/dynamic/), [Liangzhe Yuan](https://yuanliangzhe.github.io/), Kenneth Chaney and [Kostas Daniilidis](https://www.cis.upenn.edu/~kostas/).
