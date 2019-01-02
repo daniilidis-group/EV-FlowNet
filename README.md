@@ -51,7 +51,9 @@ The model can be tested using [test.py](src/test.py). The basic syntax is:
 ```python test.py --training_instance ev-flownet --test_sequence outdoor_day1```  
 This will evaluate the model on the ```outdoor_day1``` sequence.
 
-The ```--test_plot``` argument plots the predicted flow, while ```--gt_path``` allows you to specify the path to the groundtruth flow npy file for evaluation. ```--test_skip_frames``` allows for testing with inputs 4 frames apart, as described in the paper.
+The ```--test_plot``` argument plots the predicted flow, while ```--gt_path``` allows you to specify the path to the groundtruth flow npy file for evaluation. ```--test_skip_frames``` allows for testing with inputs 4 frames apart, as described in the paper. 
+
+```--save_test_output``` will cause the predicted flows and event histograms, as well as optionally the GT flows to be saved to a npz file {$SEQUENCE}\_output.npz or {$SEQUENCE}\_output_gt.npz if GT is available. The saved data can be accessed from the npz file under the keys 'output_flows', 'event_images' and 'gt_flows'.
 
 Useful evaluation functions can be found in [eval_utils.py](src/eval_utils.py). In particular, we provide a function that interpolates optical flow over multiple ground truth frames (for the 4 frames apart scenario).
 
