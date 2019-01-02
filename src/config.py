@@ -68,6 +68,9 @@ def configs():
     parser.add_argument('--test_skip_frames',
                         action='store_true',
                         help='If true, input images will be 4 frames apart.')
+    parser.add_argument('--save_test_output',
+                        action='store_true',
+                        help='If true, output flow will be saved to a npz file.')
 
     args = parser.parse_args()
     return args

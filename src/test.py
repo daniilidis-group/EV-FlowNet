@@ -66,7 +66,12 @@ def test(sess,
         AEE_sum = 0.
         percent_AEE_sum = 0.
         AEE_list = []
-    
+
+    if args.save_test_output:
+        output_flow_list = []
+        gt_flow_list = []
+        event_image_list = []
+        
     while not coord.should_stop():
         start_time = time.time()
         try:
@@ -93,7 +98,11 @@ def test(sess,
         event_count_image = np.sum(event_image[..., :2], axis=-1)
         event_count_image = (event_count_image * 255 / event_count_image.max()).astype(np.uint8)
         event_count_image = np.squeeze(event_count_image)
-       
+
+        if args.save_test_output:
+            output_flow_list.append(pred_flow)
+            event_image_list.append(event_count_image)
+        
         if args.gt_path:
             U_gt, V_gt = estimate_corresponding_gt_flow(U_gt_all, V_gt_all,
                                                         gt_timestamps,
@@ -101,6 +110,9 @@ def test(sess,
                                                         image_timestamps[0][1])
             
             gt_flow = np.stack((U_gt, V_gt), axis=2)
+
+            if args.save_test_output:
+                gt_flow_list.append(gt_flow)
             
             image_size = pred_flow.shape
             full_size = gt_flow.shape
@@ -186,6 +198,19 @@ def test(sess,
         print('mean AEE {:02f}, mean %AEE {:02f}'
               .format(AEE_sum / iters, 
                       percent_AEE_sum / iters))
+    if args.save_test_output:
+        if args.gt_path:
+            print('Saving data to {}_output_gt.npz'.format(args.test_sequence))
+            np.savez('{}_output_gt.npz'.format(args.test_sequence),
+                     output_flows=np.stack(output_flow_list, axis=0),
+                     gt_flows=np.stack(gt_flow_list, axis=0),
+                     event_images=np.stack(event_image_list, axis=0))
+        else:
+            print('Saving data to {}_output.npz'.format(args.test_sequence))
+            np.savez('{}_output.npz'.format(args.test_sequence),
+                     output_flows=np.stack(output_flow_list, axis=0),
+                     event_images=np.stack(event_image_list, axis=0))
+
     coord.request_stop()
 
 def main():        
