@@ -290,9 +290,9 @@ def get_loader(root,
                                                             image_height, 
                                                             image_width)
 
-    event_image.set_shape([image_width, image_height, event_size])
-    prev_image.set_shape([image_width, image_height, 1])
-    next_image.set_shape([image_width, image_height, 1])
+    event_image.set_shape([image_height, image_width, event_size])
+    prev_image.set_shape([image_height, image_width, 1])
+    next_image.set_shape([image_height, image_width, 1])
 
     if split == 'train':
         values_batch = tf.train.shuffle_batch([event_image, prev_image, next_image, timestamps],
