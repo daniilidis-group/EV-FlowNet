@@ -5,6 +5,7 @@ import tensorflow as tf
 
 _MAX_SKIP_FRAMES = 6
 _TEST_SKIP_FRAMES = 4
+_N_SKIP = 1
 
 class EventDataDecoder(tf.contrib.slim.data_decoder.DataDecoder):
     """
@@ -80,7 +81,7 @@ class EventDataDecoder(tf.contrib.slim.data_decoder.DataDecoder):
     Decode a TFRecord into Tensorflow friendly data.
     """
     def decode(self, serialized_example, items=None):
-        global _MAX_SKIP_FRAMES, _TEST_SKIP_FRAMES
+        global _MAX_SKIP_FRAMES, _TEST_SKIP_FRAMES, N_SKIP
         features = {
             'image_iter': tf.FixedLenFeature([], tf.int64),
             'shape': tf.FixedLenFeature([], tf.string),
@@ -104,7 +105,7 @@ class EventDataDecoder(tf.contrib.slim.data_decoder.DataDecoder):
             else:
                 n_frames = 1
         else:
-            n_frames = tf.random_uniform([], 1, _MAX_SKIP_FRAMES, dtype=tf.int64)
+            n_frames = tf.random_uniform([], 1, _MAX_SKIP_FRAMES, dtype=tf.int64) * _N_SKIP
             
         timestamps = [image_times[0], image_times[n_frames]]
 
@@ -121,7 +122,7 @@ class EventDataDecoder(tf.contrib.slim.data_decoder.DataDecoder):
                                         "/", 
                                         cam, 
                                         "_image", 
-                                        tf.as_string(image_iter+n_frames*2, width=5, fill='0'), 
+                                        tf.as_string(image_iter+n_frames, width=5, fill='0'), 
                                         ".png"])
         prev_image = self._read_image(prev_img_path)
         next_image = self._read_image(next_img_path)
