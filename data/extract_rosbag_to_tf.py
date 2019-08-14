@@ -12,7 +12,6 @@ import cv2
 import numpy as np
 import tensorflow as tf
 
-
 def _int64_feature(value):
     return tf.train.Feature(int64_list=tf.train.Int64List(value=[value]))
 
@@ -47,14 +46,6 @@ def _save_events(events,
         y = events[event_iter][1]
         t = events[event_iter][2]
 
-        if events[event_iter][3] > 0:
-            event_count_image[y, x, 0] += 1
-            event_time_image[y, x, 0] = t
-        else:
-            event_count_image[y, x, 1] += 1
-            event_time_image[y, x, 1] = t
-
-        event_iter += 1
         if t > curr_image_time:
             event_count_images.append(event_count_image)
             event_count_image = np.zeros((rows, cols, 2), dtype=np.uint16)
@@ -65,6 +56,15 @@ def _save_events(events,
             image_iter += n_skip
             if (image_iter < len(image_times)):
                 curr_image_time = (image_times[image_iter] - t_start_ros).to_sec()
+
+        if events[event_iter][3] > 0:
+            event_count_image[y, x, 0] += 1
+            event_time_image[y, x, 0] = t
+        else:
+            event_count_image[y, x, 1] += 1
+            event_time_image[y, x, 1] = t
+
+        event_iter += 1
 
     del image_times[:image_iter]
     del events[:cutoff_event_iter]
@@ -101,6 +101,21 @@ def _save_events(events,
         del event_time_images[:n_to_save]
         del event_image_times[:n_to_save]
     return event_image_iter
+
+def filter_events(events, ts):
+    r'''Removes all events with timestamp lower than the specified one
+
+    Args:
+        events (list): the list of events in form of (x, y, t, p)
+        ts (float): the timestamp to split events
+
+    Return:
+        (list): a list of events with timestamp above the threshold
+    '''
+    tss = np.array([e[2] for e in events])
+    idx_array = np.argsort(tss) # I hope it's not needed
+    i = np.searchsorted(tss[idx_array], ts)
+    return [events[k] for k in idx_array[i:]]
 
 def main():
     parser = argparse.ArgumentParser(
@@ -177,12 +192,13 @@ def main():
     else:
         t_end = t_start + args.end_time
 
+    eps = 0.1
     for topic, msg, t in bag.read_messages(
             topics=['/davis/left/image_raw',
                     '/davis/right/image_raw',
                     '/davis/left/events',
                     '/davis/right/events'],
-            start_time=rospy.Time(args.start_time + t_start),
+            start_time=rospy.Time(max(args.start_time, eps) - eps + t_start),
             end_time=rospy.Time(t_end)):
         # Check to make sure we're working with stereo messages.
         if not ('left' in topic or 'right' in topic):
@@ -207,6 +223,8 @@ def main():
                       .format(cols, rows, width, height))
                 return
             time = msg.header.stamp
+            if time.to_sec() - t_start < args.start_time:
+                continue
             image = np.asarray(bridge.imgmsg_to_cv2(msg, msg.encoding))
             image = np.reshape(image, (height, width))
 
@@ -220,6 +238,8 @@ def main():
                 else:
                     first_left_image_time = time
                     left_event_image_times.append(time.to_sec())
+                    # filter events we added previously
+                    left_events = filter_events(left_events, left_event_image_times[-1] - t_start)
                 left_image_iter += 1
             else:
                 cv2.imwrite(os.path.join(args.output_folder,
@@ -231,6 +251,9 @@ def main():
                 else:
                     first_right_image_time = time
                     right_event_image_times.append(time.to_sec())
+                    # filter events we added previously
+                    right_events = filter_events(right_events, left_event_image_times[-1] - t_start)
+
                 right_image_iter += 1
         elif 'events' in topic and msg.events:
             # Add events to list.
@@ -240,9 +263,11 @@ def main():
                          event.y,
                          (ts - t_start_ros).to_sec(),
                          (float(event.polarity) - 0.5) * 2]
-                if isLeft and first_left_image_time != -1  and ts > first_left_image_time:
-                    left_events.append(event)
-                elif first_right_image_time != -1 and ts > first_right_image_time:
+                if isLeft:
+                    # add event if it was after the first image or we haven't seen the first image
+                    if first_left_image_time == -1  or ts > first_left_image_time:
+                        left_events.append(event)
+                elif first_right_image_time == -1 or ts > first_right_image_time:
                     right_events.append(event)
             if isLeft:
                 if len(left_image_times) >= args.max_aug and\
