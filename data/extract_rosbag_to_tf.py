@@ -252,7 +252,7 @@ def main():
                     first_right_image_time = time
                     right_event_image_times.append(time.to_sec())
                     # filter events we added previously
-                    right_events = filter_events(right_events, left_event_image_times[-1] - t_start)
+                    right_events = filter_events(right_events, right_event_image_times[-1] - t_start)
 
                 right_image_iter += 1
         elif 'events' in topic and msg.events:
